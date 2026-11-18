@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Statement Analysis 101：財務報表分析入門</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-light: #fffbeb;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: var(--slate-800);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    /* Deck Container */
+    .deck-container {
+      width: 100%;
+      max-width: 1060px;
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 690px;
+      position: relative;
+    }
+
+    /* Top Navigation Header */
+    .deck-header {
+      padding: 14px 28px;
+      background: var(--slate-900);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-title-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-badge {
+      background: rgba(37, 99, 235, 0.3);
+      color: #93c5fd;
+      border: 1px solid rgba(147, 197, 253, 0.3);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .header-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f8fafc;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .slide-counter {
+      font-size: 14px;
+      font-weight: 500;
+      color: #94a3b8;
+    }
+
+    .btn-trace-matrix {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+
+    .btn-trace-matrix:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+
+    /* Progress Bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 4px;
+      background: #334155;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+      width: 12.5%;
+      transition: width 0.3s ease;
+    }
+
+    /* Slide Main Viewport */
+    .slide-viewport {
+      flex: 1;
+      padding: 32px 40px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Slide Header */
+    .slide-head {
+      margin-bottom: 20px;
+    }
+
+    .slide-category {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .slide-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--slate-900);
+      line-height: 1.3;
+    }
+
+    .slide-subtitle {
+      font-size: 14.5px;
+      color: var(--slate-600);
+      margin-top: 5px;
+    }
+
+    /* Content Cards & Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--slate-300);
+    }
+
+    .card-primary {
+      background: var(--primary-light);
+      border-color: #bfdbfe;
+    }
+
+    .card-success {
+      background: var(--success-light);
+      border-color: #a7f3d0;
+    }
+
+    .card-warning {
+      background: var(--warning-light);
+      border-color: #fde68a;
+    }
+
+    .card-danger {
+      background: var(--danger-light);
+      border-color: #fecaca;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body {
+      font-size: 13.5px;
+      color: var(--slate-700);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .card-body ul, .card-body ol {
+      padding-left: 20px;
+      margin-top: 8px;
+    }
+
+    .card-body li {
+      margin-bottom: 6px;
+    }
+
+    /* Native CSS Math Formulas */
+    .formula-box {
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      font-size: 14.5px;
+      margin: 14px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .formula-label {
+      font-size: 12px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .math-formula-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #60a5fa;
+      line-height: 1.4;
+    }
+
+    .math-frac {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+      padding: 0 4px;
+      font-size: 0.9em;
+      line-height: 1.15;
+    }
+
+    .math-num {
+      border-bottom: 1.5px solid currentColor;
+      padding-bottom: 2px;
+    }
+
+    .math-den {
+      padding-top: 2px;
+    }
+
+    /* Structured Analysis Box (Facts vs Hypotheses vs Inquiries) */
+    .analysis-triad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .triad-col {
+      background: #ffffff;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--slate-200);
+      padding: 14px;
+    }
+
+    .triad-col-header {
+      font-size: 13.5px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .triad-col-facts { border-top: 3px solid #3b82f6; }
+    .triad-col-hypo { border-top: 3px solid #f59e0b; }
+    .triad-col-audit { border-top: 3px solid #10b981; }
+
+    .triad-list {
+      font-size: 12.5px;
+      color: var(--slate-700);
+      line-height: 1.55;
+      padding-left: 18px;
+    }
+
+    .triad-list li {
+      margin-bottom: 6px;
+    }
+
+    /* Table Design */
+    .data-table-container {
+      overflow-x: auto;
+      margin: 12px 0;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--slate-200);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .data-table th {
+      background: var(--slate-100);
+      color: var(--slate-800);
+      padding: 10px 12px;
+      font-weight: 600;
+      border-bottom: 2px solid var(--slate-200);
+    }
+
+    .data-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--slate-200);
+      color: var(--slate-700);
+    }
+
+    .data-table tr:hover {
+      background: var(--slate-50);
+    }
+
+    .highlight-cell-danger {
+      background: #fee2e2;
+      color: #991b1b;
+      font-weight: 600;
+    }
+
+    .highlight-cell-success {
+      background: #d1fae5;
+      color: #065f46;
+      font-weight: 600;
+    }
+
+    /* Metric Badges */
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .badge-danger {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .badge-warning {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .badge-success {
+      background: #d1fae5;
+      color: #047857;
+    }
+
+    /* Citation Trigger Tag */
+    .citation-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #c7d2fe;
+      vertical-align: middle;
+      transition: var(--transition);
+    }
+
+    .citation-tag:hover {
+      background: #c7d2fe;
+      color: #1e1b4b;
+      transform: translateY(-1px);
+    }
+
+    /* Quiz Container */
+    .quiz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .quiz-card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+    }
+
+    .quiz-question {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 10px;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .quiz-option {
+      background: #ffffff;
+      border: 1px solid var(--slate-300);
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      cursor: pointer;
+      text-align: left;
+      transition: var(--transition);
+    }
+
+    .quiz-option:hover {
+      background: var(--slate-100);
+      border-color: var(--primary);
+    }
+
+    .quiz-option.correct {
+      background: #d1fae5 !important;
+      border-color: #10b981 !important;
+      color: #065f46;
+      font-weight: 600;
+    }
+
+    .quiz-option.incorrect {
+      background: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #991b1b;
+    }
+
+    .quiz-feedback {
+      margin-top: 10px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      display: none;
+    }
+
+    .quiz-feedback.show-correct {
+      display: block;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .quiz-feedback.show-incorrect {
+      display: block;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    /* Bottom Control Bar */
+    .deck-footer {
+      padding: 14px 28px;
+      background: #ffffff;
+      border-top: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .footer-hints {
+      font-size: 13px;
+      color: var(--slate-600);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-nav {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+
+    .btn-nav:hover:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-nav:disabled {
+      background: var(--slate-200);
+      color: var(--slate-400);
+      cursor: not-allowed;
+    }
+
+    .btn-nav-outline {
+      background: transparent;
+      color: var(--slate-700);
+      border: 1px solid var(--slate-300);
+    }
+
+    .btn-nav-outline:hover:not(:disabled) {
+      background: var(--slate-100);
+      color: var(--slate-900);
+    }
+
+    /* Modals & Popovers */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 680px;
+      max-height: 85vh;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalScale 0.25s ease-out;
+    }
+
+    @keyframes modalScale {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 16px 22px;
+      background: var(--slate-900);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: #ffffff;
+    }
+
+    .modal-body {
+      padding: 22px;
+      overflow-y: auto;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--slate-700);
+    }
+
+    .provenance-field {
+      margin-bottom: 12px;
+    }
+
+    .provenance-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--slate-600);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+
+    .provenance-val {
+      font-size: 13.5px;
+      color: var(--slate-900);
+      word-break: break-all;
+    }
+
+    .provenance-quote {
+      background: var(--slate-50);
+      border-left: 4px solid var(--primary);
+      padding: 10px 14px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      color: var(--slate-800);
+      margin-top: 5px;
+      font-size: 13px;
+    }
+
+    .banner-fictional {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: #1e40af;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Responsive Media Queries */
+    @media (max-width: 860px) {
+      .deck-container {
+        min-height: auto;
+      }
+      .slide-viewport {
+        padding: 20px;
+      }
+      .grid-2, .grid-3, .analysis-triad {
+        grid-template-columns: 1fr;
+      }
+      .slide-title {
+        font-size: 20px;
+      }
+      .deck-header {
+        padding: 12px 18px;
+      }
+      .deck-footer {
+        padding: 12px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck-container">
+    <!-- Header -->
+    <header class="deck-header">
+      <div class="header-title-box">
+        <span class="header-badge">大學入門教學</span>
+        <h1 class="header-title">Financial Statement Analysis 101：財務報表分析入門</h1>
+      </div>
+      <div class="header-actions">
+        <span class="slide-counter" id="slideCounter">投影片 1 / 8</span>
+        <button class="btn-trace-matrix" onclick="openTraceMatrixModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          知識溯源矩陣
+        </button>
+      </div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Main Slide Viewport -->
+    <main class="slide-viewport">
+
+      <!-- SLIDE 1 -->
+      <section class="slide active" id="slide-1">
+        <div class="slide-head">
+          <div class="slide-category">
+            <span>導論與全貌</span>
+            <span class="citation-tag" onclick="showCitation('P1')">Ref: WIKI_00_INDEX_CHK_001 | SEC</span>
+          </div>
+          <h2 class="slide-title">歡迎來到財務報表的世界：企業的「全身健康檢查」</h2>
+          <p class="slide-subtitle">打破借貸分錄恐懼，用三大報表透視企業本質與經營活力</p>
+        </div>
+
+        <div class="grid-3" style="margin-top: 8px;">
+          <div class="card card-primary">
+            <div class="card-title">
+              <span>📸 資產負債表</span>
+            </div>
+            <div class="card-body">
+              <strong>「特定時點的體態快照」</strong>
+              <p style="margin-top: 6px;">如同一張特定時點的相片，揭示企業擁有什麼（資產）、積欠什麼（負債），體質是否均衡結實。</p>
+              <ul>
+                <li>特定時間點 (Snapshot)</li>
+                <li>檢驗資本結構與財務槓桿</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card card-success">
+            <div class="card-title">
+              <span>🎬 綜合損益表</span>
+            </div>
+            <div class="card-body">
+              <strong>「整期的運動動態影片」</strong>
+              <p style="margin-top: 6px;">記錄一整段期間賺取營收與耗費成本的過程，衡量企業這段時間是增肌（賺錢）還是虛耗。</p>
+              <ul>
+                <li>特定期間 (Period of Time)</li>
+                <li>營收、毛利與淨利表現</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card card-warning">
+            <div class="card-title">
+              <span>🩸 現金流量表</span>
+            </div>
+            <div class="card-body">
+              <strong>「體內的血液循環報告」</strong>
+              <p style="margin-top: 6px;">排除帳面權責調整，只檢驗實質現金流進與流出。體魄再壯碩，只要缺血（缺流動性）就會面臨休克風險。</p>
+              <ul>
+                <li>現金收付真實紀錄 (Cash Flow)</li>
+                <li>獲利真假的「試金石」</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 18px; background: #f8fafc;">
+          <div class="card-body" style="font-size: 14px; color: var(--slate-700);">
+            💡 <strong>初學者的第一個核心認知</strong>：財務分析並不是繁瑣的記帳流程，而是透過嚴密的報表勾稽，審視一家企業的「獲利能力」、「流動性健康」以及「經營永續性」。
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 2 -->
+      <section class="slide" id="slide-2">
+        <div class="slide-head">
+          <div class="slide-category">
+            <span>三大財務報表基礎</span>
+            <span class="citation-tag" onclick="showCitation('P2')">Ref: WIKI_01_BALANCE_SHEET_CHK_001 | SEC</span>
+          </div>
+          <h2 class="slide-title">你的錢從哪裡來？賺了多少錢？</h2>
+          <p class="slide-subtitle">掌握會計第一基本等式與多步驟損益結構</p>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="formula-box">
+              <span class="formula-label">會計第一基本等式 (Fundamental Equation)</span>
+              <div class="math-formula-row">
+                <span>資產 (Assets) = 負債 (Liabilities) + 股東權益 (Equity)</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">錢的去處 vs. 錢的來源</div>
+              <div class="card-body">
+                <ul>
+                  <li><strong>資產 (Assets)</strong>：企業擁有的經濟資源（現金、應收帳款、存貨、廠房設備）。</li>
+                  <li><strong>負債 (Liabilities)</strong>：向外部債權人借來的資金義務（應付帳款、短期借款、長期貸款）。</li>
+                  <li><strong>股東權益 (Equity)</strong>：股東自有投入資本與歷年賺取的保留盈餘。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card card-primary" style="height: 100%;">
+              <div class="card-title">階梯式損益結構 (Multi-Step P&L)</div>
+              <div class="card-body">
+                <ol style="padding-left: 20px; line-height: 1.75;">
+                  <li><strong>營業收入 (Revenue / Top Line)</strong>：交貨銷售總額。</li>
+                  <li><strong>營業毛利 (Gross Profit)</strong>：營收扣除直接生產成本 (COGS)，反映定價權。</li>
+                  <li><strong>營業利益 (Operating Income)</strong>：本業核心競爭力賺到的錢（毛利扣除管銷研發費用）。
+                    <div style="font-size: 12px; color: var(--slate-600); margin-top: 2px;">
+                      <em>註：在簡化財報中常與息稅前利潤 (EBIT) 並稱，但實務上 EBIT 包含非營業收支，兩者在嚴謹會計上存在範疇差異。</em>
+                    </div>
+                  </li>
+                  <li><strong>本期淨利 (Net Income / Bottom Line)</strong>：扣除利息與所得稅後，最終落袋純利。</li>
+                </ol>
+                <div style="margin-top: 10px; background: #ffffff; padding: 10px 14px; border-radius: var(--radius-sm); border-left: 3px solid var(--danger);">
+                  ⚠️ <strong>權責發生制 (Accrual) 概念</strong>：損益表認列收入是看「商品勞務是否交付」，<strong>不等於現金已經收到</strong>。若全為賒銷，帳面淨利再高，銀行戶頭也可能分文未進！
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 3 -->
+      <section class="slide" id="slide-3">
+        <div class="slide-head">
+          <div class="slide-category">
+            <span>現金流量表解析</span>
+            <span class="citation-tag" onclick="showCitation('P3')">Ref: WIKI_03_CASH_FLOW_STATEMENT_CHK_001 | Wiki & SEC</span>
+          </div>
+          <h2 class="slide-title">現金流量表：獲利真假的「試金石」</h2>
+          <p class="slide-subtitle">拆解三大現金活動與自由現金流 (Free Cash Flow)</p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card card-success">
+            <div class="card-title">1. 營業活動現金流 (CFO)</div>
+            <div class="card-body">
+              <strong>企業核心本業造血能力</strong>
+              <p style="margin-top: 6px;">由買賣商品、提供勞務收進的真實現金。成熟穩定企業長期通常仰賴正向 CFO 維持運轉；但在高成長期、產能擴建期或淡旺季波動時，短期 CFO 為負亦屬常見。</p>
+            </div>
+          </div>
+
+          <div class="card card-primary">
+            <div class="card-title">2. 投資活動現金流 (CFI)</div>
+            <div class="card-body">
+              <strong>購建長期資產與產能擴充</strong>
+              <p style="margin-top: 6px;">包含購買廠房設備 (CapEx) 或進行股權併購。處於積極擴產階段的成長型製造業，CFI 通常呈現負值。</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">3. 籌資活動現金流 (CFF)</div>
+            <div class="card-body">
+              <strong>與股東及債權人的資金往來</strong>
+              <p style="margin-top: 6px;">向銀行借款、發行新股現金流入為正；償還銀行貸款、買回庫藏股或發放現金股利為負。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="formula-box" style="margin-top: 16px;">
+          <span class="formula-label">間接法營業現金流直觀推導 (Indirect CFO Formula)</span>
+          <div class="math-formula-row">
+            <span>CFO = 本期淨利 + 折舊攤銷 &minus; &Delta;應收帳款 &minus; &Delta;存貨 + &Delta;應付帳款</span>
+          </div>
+          <span style="font-size: 13px; color: #cbd5e1; margin-top: 2px;">
+            邏輯解讀：貨品賣出但錢沒收到（應收增加），必須從淨利扣除；產品未賣出積壓倉庫（存貨增加），扣除資金；欠供應商款項（應付增加），現金留在身邊加回。
+          </span>
+        </div>
+
+        <div class="card card-warning" style="margin-top: 12px;">
+          <div class="card-body" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <strong>自由現金流 (Free Cash Flow, FCF)</strong>：FCF = CFO &minus; CapEx (資本支出)
+              <p style="font-size: 13px; color: var(--slate-600); margin-top: 2px;">維持營運與擴建後，真正能自由發放股利、還債或進行再投資的真金白銀。</p>
+            </div>
+            <span class="badge badge-warning" style="font-size: 13px; padding: 5px 10px;">投資人核心指標</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 4 -->
+      <section class="slide" id="slide-4">
+        <div class="slide-head">
+          <div class="slide-category">
+            <span>三表勾稽連動通道</span>
+            <span class="citation-tag" onclick="showCitation('P4')">Ref: WIKI_04_STATEMENT_RELATIONS_CHK_001 | CFI SRC_07</span>
+          </div>
+          <h2 class="slide-title">看穿閉環：三大財務報表是「動態一體」的</h2>
+          <p class="slide-subtitle">單看一張報表會陷入盲點，三表勾稽才能看清全局</p>
+        </div>
+
+        <div class="grid-3" style="margin-top: 8px;">
+          <div class="card" style="border-top: 4px solid var(--primary);">
+            <div class="card-title">通道一：損益 ↔ 資產負債</div>
+            <div class="card-body">
+              <strong>保留盈餘累積通道</strong>
+              <div class="formula-box" style="padding: 10px; font-size: 12.5px; margin: 8px 0;">
+                期末保留盈餘 = 期初保留盈餘 + 本期淨利 &minus; 發放股利
+              </div>
+              <p>綜合損益表底部的「本期淨利」，在扣除現金分紅後，會如實注入資產負債表股東權益的保留盈餘項下。</p>
+            </div>
+          </div>
+
+          <div class="card" style="border-top: 4px solid var(--success);">
+            <div class="card-title">通道二：損益 ↔ 現金流量</div>
+            <div class="card-body">
+              <strong>淨利轉現金調節起算點</strong>
+              <div class="formula-box" style="padding: 10px; font-size: 12.5px; margin: 8px 0;">
+                CFO 起算點 = 損益表「本期淨利」
+              </div>
+              <p>現金流量表間接法的第一行就是本期淨利，再透過加回非現金費用及調節營運資金增減，剔除未收現之帳面金額。</p>
+            </div>
+          </div>
+
+          <div class="card" style="border-top: 4px solid var(--warning);">
+            <div class="card-title">通道三：現金流 ↔ 資產負債</div>
+            <div class="card-body">
+              <strong>期末現金完全一致性</strong>
+              <div class="formula-box" style="padding: 10px; font-size: 12.5px; margin: 8px 0;">
+                期末現金 = 期初現金 + (CFO + CFI + CFF)
+              </div>
+              <p>現金流量表計算出的當期現金淨增加額，加上期初現金，必須<strong>100% 完全等於</strong>資產負債表期末現金科目。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-primary" style="margin-top: 16px;">
+          <div class="card-body" style="font-size: 14px;">
+            🎯 <strong>初學者的勾稽檢驗心法</strong>：如果一家公司宣稱賺了 1 億元淨利，但資產負債表現金分文未增、應收帳款暴增 1.2 億元，且營業現金流呈現負數，代表這 1 億獲利尚未回收實質資金，現金仍積壓在客戶端。
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 5 -->
+      <section class="slide" id="slide-5">
+        <div class="slide-head">
+          <div class="slide-category">
+            <span>獲利能力分析</span>
+            <span class="citation-tag" onclick="showCitation('P5')">Ref: WIKI_06_DUPONT_ANALYSIS_CHK_001 | CFI SRC_08</span>
+          </div>
+          <h2 class="slide-title">解構 ROE：公司到底靠什麼賺錢？</h2>
+          <p class="slide-subtitle">杜邦分析法 (DuPont Analysis) 的三引擎解碼</p>
+        </div>
+
+        <div class="formula-box">
+          <span class="formula-label">杜邦三因子拆解方程式 (Three-Step DuPont Formula)</span>
+          <div class="math-formula-row">
+            <span>ROE = 純益率 (Net Margin) &times; 總資產週轉率 (Asset Turnover) &times; 權益乘數 (Financial Leverage)</span>
+          </div>
+          <div class="math-formula-row" style="font-size: 14px; color: #94a3b8; font-weight: normal; margin-top: 2px;">
+            <span>ROE = </span>
+            <span class="math-frac"><span class="math-num">淨利</span><span class="math-den">股東權益</span></span>
+            <span> = </span>
+            <span class="math-frac"><span class="math-num">淨利</span><span class="math-den">營業收入</span></span>
+            <span> &times; </span>
+            <span class="math-frac"><span class="math-num">營業收入</span><span class="math-den">總資產</span></span>
+            <span> &times; </span>
+            <span class="math-frac"><span class="math-num">總資產</span><span class="math-den">股東權益</span></span>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top: 12px;">
+          <div class="card card-primary">
+            <div class="card-title">1. 純益率 (Profitability)</div>
+            <div class="card-body">
+              <strong>「能賺多少？（定價權）」</strong>
+              <p>每賣出 100 元能留下多少純益。高毛利、高純益率通常代表擁有產品差異化或專利技術壁壘。</p>
+              <div style="margin-top: 8px; font-weight: 600; color: var(--primary);">典型：精品名牌、高階 IC 設計</div>
+            </div>
+          </div>
+
+          <div class="card card-success">
+            <div class="card-title">2. 資產週轉率 (Efficiency)</div>
+            <div class="card-body">
+              <strong>「賣得多快？（翻桌率）」</strong>
+              <p>每一塊錢資產能創造多少營收。利潤率雖然相對平實，但靠著極快商品流通產生可觀總回報。</p>
+              <div style="margin-top: 8px; font-weight: 600; color: #059669;">典型：Costco、大型連鎖超市</div>
+            </div>
+          </div>
+
+          <div class="card card-danger">
+            <div class="card-title">3. 權益乘數 (Leverage)</div>
+            <div class="card-body">
+              <strong>「借了多少？（財務槓桿）」</strong>
+              <p>總資產是股東權益的倍數。適度負債能擴大股東報酬，但負債比過高會加重固定利息負擔。</p>
+              <div style="margin-top: 8px; font-weight: 600; color: #b91c1c;">典型：重資產製造業、銀行金融</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-warning" style="margin-top: 14px;">
+          <div class="card-body">
+            ⚠️ <strong>初學者的防雷眼光</strong>：若一家公司的 ROE 很高，但純益率與週轉率連年下滑，完全是靠借貸衝高的「權益乘數」硬撐，這就是典型的<strong>虛胖型 ROE</strong>，體質承受風險能力較差！
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 6 -->
+      <section class="slide" id="slide-6">
+        <div class="slide-head">
+          <div class="slide-category">
+            <span>流動性與營運效率</span>
+            <span class="citation-tag" onclick="showCitation('P6')">Ref: WIKI_07_LIQUIDITY_SOLVENCY_CHK_001 | CFI</span>
+          </div>
+          <h2 class="slide-title">短期能活命嗎？資產週轉得多快？</h2>
+          <p class="slide-subtitle">流動性防線與現金轉換循環 (CCC)（統一採用期末餘額口徑）</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">🛡️ 短期償債能力指標</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>流動比率 (Current Ratio)</strong>：
+                  <span class="math-frac"><span class="math-num">流動資產</span><span class="math-den">流動負債</span></span>
+                  <div style="color: var(--slate-600); font-size: 13px; margin-top: 4px;">
+                    傳統製造業常以 1.5 ~ 2.0 作為參考基準；但各產業差異極大，例如連鎖零售業或訂閱制企業（負營運資金模式），比率常低於 1.0 仍可穩健運作，不可一概而論。
+                  </div>
+                </li>
+                <li style="margin-top: 10px;"><strong>速動比率 (Quick Ratio)</strong>：
+                  <span class="math-frac"><span class="math-num">流動資產 &minus; 存貨 &minus; 預付款項</span><span class="math-den">流動負債</span></span>
+                  <div style="color: var(--slate-600); font-size: 13px; margin-top: 4px;">
+                    基準參考 &ge; 1.0。<strong>為何特別扣除存貨？</strong> 因為景氣急凍時存貨去化較慢，且可能面臨重大跌價風險！
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card card-primary">
+            <div class="card-title">⏱️ 營運週轉天數（期末餘額口徑）</div>
+            <div class="card-body">
+              <ul>
+                <li><strong>應收天數 (DSO)</strong>：
+                  <span class="math-frac"><span class="math-num">期末應收帳款</span><span class="math-den">營業收入</span></span> &times; 365 天（貨賣出後平均需幾天收回現金）。
+                </li>
+                <li style="margin-top: 6px;"><strong>存貨天數 (DSI)</strong>：
+                  <span class="math-frac"><span class="math-num">期末存貨</span><span class="math-den">營業成本</span></span> &times; 365 天（商品平均躺在倉庫幾天）。
+                </li>
+                <li style="margin-top: 6px;"><strong>應付天數 (DPO)</strong>：
+                  <span class="math-frac"><span class="math-num">期末應付帳款</span><span class="math-den">營業成本</span></span> &times; 365 天（賒購原料平均延後付款天數）。
+                </li>
+              </ul>
+              <div style="margin-top: 8px; font-size: 12px; color: var(--primary-dark);">
+                ℹ️ 採用期末餘額能靈敏捕捉會計期末突發性的賒銷擴張或庫存積壓。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="formula-box" style="margin-top: 14px;">
+          <span class="formula-label">現金轉換循環 (Cash Conversion Cycle, CCC)</span>
+          <div class="math-formula-row">
+            <span>CCC = DSO (應收天數) + DSI (存貨天數) &minus; DPO (應付天數)</span>
+          </div>
+          <span style="font-size: 13px; color: #cbd5e1; margin-top: 2px;">
+            詮釋：自「付出真金白銀購買原料」至「產銷並真正把現金收回」的空窗天數。若 CCC 持續大幅拉長，代表營運資金被嚴重鎖死在客戶欠款與庫存中，屬於需要進一步調查的潛在流動性訊號。
+          </span>
+        </div>
+      </section>
+
+      <!-- SLIDE 7 -->
+      <section class="slide" id="slide-7">
+        <div class="slide-head">
+          <div class="slide-category">
+            <span>實務教學案例</span>
+            <span class="citation-tag" onclick="showCitation('P7')">Ref: WIKI_10_CASE_STUDY_CHK_001 | 虛構教學模型</span>
+          </div>
+          <h2 class="slide-title">實務教學案例剖析：恆星光電科技</h2>
+          <p class="slide-subtitle">三年財務數據實證：「營收與淨利翻倍，營業現金流卻持續惡化」</p>
+        </div>
+
+        <div class="banner-fictional">
+          <span>⚠️</span>
+          <div>
+            <strong>特別教學聲明</strong>：恆星光電科技 (Stellar Photonics Corp.) 與其財務數據均為<strong>虛構教學模型</strong>（已由 Python 審計程式 100% 勾稽平衡），請勿歸因於真實上市公司。分析架構遵循會計文獻之標準框架。
+          </div>
+        </div>
+
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>財務指標 (單位: 新台幣百萬元)</th>
+                <th>2023年 (第1年)</th>
+                <th>2024年 (第2年)</th>
+                <th>2025年 (第3年)</th>
+                <th>三年趨勢審計與財務診斷</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>營業收入 (Revenue)</strong></td>
+                <td>500.0</td>
+                <td>800.0</td>
+                <td>1,200.0</td>
+                <td><span class="badge badge-success">成長 +140.0%（表象大好）</span></td>
+              </tr>
+              <tr>
+                <td><strong>本期淨利 (Net Income)</strong></td>
+                <td>50.0</td>
+                <td>95.0</td>
+                <td>160.0</td>
+                <td><span class="badge badge-success">淨利暴增 +220.0%</span></td>
+              </tr>
+              <tr class="highlight-cell-danger">
+                <td><strong>營業活動現金流 (CFO)</strong></td>
+                <td>+45.0</td>
+                <td>-30.0</td>
+                <td>-110.0</td>
+                <td><strong>🚨 連兩年嚴重轉負（現金流惡化）</strong></td>
+              </tr>
+              <tr>
+                <td>期末應收帳款 (AR)</td>
+                <td>80.0</td>
+                <td>280.0</td>
+                <td>620.0</td>
+                <td><span class="badge badge-danger">帳款餘額狂飆 +675.0%</span></td>
+              </tr>
+              <tr>
+                <td>期末存貨 (Inventory)</td>
+                <td>60.0</td>
+                <td>150.0</td>
+                <td>310.0</td>
+                <td><span class="badge badge-danger">庫存積壓大增 +416.7%</span></td>
+              </tr>
+              <tr class="highlight-cell-danger">
+                <td><strong>應收帳款天數 (DSO, 期末口徑)</strong></td>
+                <td>58.4 天</td>
+                <td>127.8 天</td>
+                <td>188.6 天</td>
+                <td><strong>🚨 收回現金需要半年以上</strong></td>
+              </tr>
+              <tr>
+                <td><strong>存貨週轉天數 (DSI, 期末口徑)</strong></td>
+                <td>62.6 天</td>
+                <td>101.4 天</td>
+                <td>141.4 天</td>
+                <td>貨品庫存天數拉長 2.3 倍</td>
+              </tr>
+              <tr class="highlight-cell-danger">
+                <td><strong>自由現金流 (FCF = CFO &minus; CapEx)</strong></td>
+                <td>+15.0</td>
+                <td>-90.0</td>
+                <td>-230.0</td>
+                <td><strong>🚨 2025年資金缺口高達 2.3 億元</strong></td>
+              </tr>
+              <tr>
+                <td>負債比率 (Debt Ratio)</td>
+                <td>38.0%</td>
+                <td>52.1%</td>
+                <td>61.1%</td>
+                <td>負債比攀升，高度依賴短期借款</td>
+              </tr>
+              <tr class="highlight-cell-danger">
+                <td><strong>應計項目總額 (淨利 &minus; CFO)</strong></td>
+                <td>+5.0</td>
+                <td>+125.0</td>
+                <td>+270.0</td>
+                <td><strong>🚨 應計異常！淨利缺乏實質現金支持</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Professional Tripartite Analysis (Facts vs Hypotheses vs Audit Steps) -->
+        <div class="analysis-triad">
+          <div class="triad-col triad-col-facts">
+            <div class="triad-col-header" style="color: #1d4ed8;">
+              <span>📋 1. 觀察到的財務事實</span>
+            </div>
+            <ul class="triad-list">
+              <li>營收大幅攀升 (+140%) 且淨利創新高 (+220%)。</li>
+              <li>營業現金流連兩年顯著為負 (-30M, -110M)。</li>
+              <li>應收帳款增幅 (675%) 遠高於營收增幅 (140%)。</li>
+              <li>DSO 拉長至 188.6 天，存貨天數達 141.4 天。</li>
+            </ul>
+          </div>
+
+          <div class="triad-col triad-col-hypo">
+            <div class="triad-col-header" style="color: #b45309;">
+              <span>🔍 2. 具備條件的可能原因</span>
+            </div>
+            <ul class="triad-list">
+              <li><strong>假說 A</strong>：管理階層為爭取市佔，可能提供了更為寬鬆的信用帳期條件。</li>
+              <li><strong>假說 B</strong>：大客戶驗收週期拉長，或下游客戶面臨付款困難。</li>
+              <li><strong>假說 C</strong>：營收高度集中於季末出貨，尚未完成實質收現。</li>
+            </ul>
+          </div>
+
+          <div class="triad-col triad-col-audit">
+            <div class="triad-col-header" style="color: #047857;">
+              <span>🔬 3. 需進一步查證事項</span>
+            </div>
+            <ul class="triad-list">
+              <li>查閱應收帳款帳齡分析表 (Aging Schedule) 確認逾期比例。</li>
+              <li>追蹤次年第一季之期後實質收現狀況。</li>
+              <li>評估存貨備抵跌價損失是否提列充分。</li>
+              <li>此現象代表<strong>潛在流動性風險與盈餘品質警訊</strong>。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 8 -->
+      <section class="slide" id="slide-8">
+        <div class="slide-head">
+          <div class="slide-category">
+            <span>互動測驗與學習總結</span>
+            <span class="citation-tag" onclick="showCitation('P8')">Ref: WIKI_10_CASE_STUDY_CHK_006 | CFI</span>
+          </div>
+          <h2 class="slide-title">學習成果檢核：成為看穿財報真偽的聰明投資人</h2>
+          <p class="slide-subtitle">即時 3 題觀念測驗與非會計人解讀心法</p>
+        </div>
+
+        <div class="grid-2">
+          <!-- Quiz Section -->
+          <div class="quiz-container">
+            <!-- Question 1 -->
+            <div class="quiz-card" id="qcard-1">
+              <div class="quiz-question">Q1. 一家公司營收與淨利大增 50%，但營業現金流 (CFO) 連續兩年為嚴重負數，最可能反映什麼現象？</div>
+              <div class="quiz-options">
+                <button class="quiz-option" onclick="handleQuiz(1, 'A', false)">A. 生意太好供不應求，正在大量擴產</button>
+                <button class="quiz-option" onclick="handleQuiz(1, 'B', true)">B. 大量放寬信用賒銷，貨款未收回，存在潛在流動性風險</button>
+                <button class="quiz-option" onclick="handleQuiz(1, 'C', false)">C. 公司的負債比率太低</button>
+              </div>
+              <div class="quiz-feedback" id="feedback-1"></div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="quiz-card" id="qcard-2">
+              <div class="quiz-question">Q2. 在杜邦分析中，哪一個因子大幅攀升，通常代表公司正大幅增加借貸並承擔更高財務槓桿風險？</div>
+              <div class="quiz-options">
+                <button class="quiz-option" onclick="handleQuiz(2, 'A', true)">A. 權益乘數 (Financial Leverage / Equity Multiplier)</button>
+                <button class="quiz-option" onclick="handleQuiz(2, 'B', false)">B. 總資產週轉率 (Asset Turnover)</button>
+                <button class="quiz-option" onclick="handleQuiz(2, 'C', false)">C. 營業純益率 (Net Profit Margin)</button>
+              </div>
+              <div class="quiz-feedback" id="feedback-2"></div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="quiz-card" id="qcard-3">
+              <div class="quiz-question">Q3. 計算速動比率 (Quick Ratio) 時，為什麼要特別從流動資產中把「存貨」扣除？</div>
+              <div class="quiz-options">
+                <button class="quiz-option" onclick="handleQuiz(3, 'A', false)">A. 存貨依照會計準則不屬於資產科目</button>
+                <button class="quiz-option" onclick="handleQuiz(3, 'B', true)">B. 存貨在緊急時難以迅速變現，且可能面臨滯銷或跌價損失</button>
+                <button class="quiz-option" onclick="handleQuiz(3, 'C', false)">C. 存貨是無形資產</button>
+              </div>
+              <div class="quiz-feedback" id="feedback-3"></div>
+            </div>
+          </div>
+
+          <!-- Key Takeaways -->
+          <div>
+            <div class="card card-primary" style="height: 100%;">
+              <div class="card-title">🌟 非會計人必記的五大核心心法</div>
+              <div class="card-body">
+                <ol style="padding-left: 20px; line-height: 1.8;">
+                  <li style="font-size: 15px; font-weight: 700; color: #1e3a8a;">
+                    「營收是虛榮，利潤是期望，現金才是真實。」
+                  </li>
+                  <li><strong>單看損益表是半盲</strong>：帳面賺錢不等於有現金，必須搭配三表勾稽才能看出獲利品質。</li>
+                  <li><strong>警惕剪刀差訊號</strong>：應收帳款與存貨的增長率若長期顯著高於營收成長，是重要的調查警示。</li>
+                  <li><strong>自由現金流是生命線</strong>：FCF 長期為負且靠借款維持營運的公司，必須審慎評估其融資彈性。</li>
+                  <li><strong>看穿虛胖 ROE</strong>：優質 ROE 來自產品定價權或快速週轉，而非單純借債堆出來的槓桿。</li>
+                </ol>
+                <div style="margin-top: 18px; text-align: center; padding: 12px; background: #ffffff; border-radius: var(--radius-md); border: 1px dashed var(--primary);">
+                  🎓 <strong>恭喜完成 Financial Statement Analysis 101 入門課程！</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Controls Footer -->
+    <footer class="deck-footer">
+      <div class="footer-hints">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span>支援鍵盤 ← / → 方向鍵快速切換投影片</span>
+      </div>
+      <div class="nav-buttons">
+        <button class="btn-nav btn-nav-outline" id="prevBtn" onclick="prevSlide()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          上一頁
+        </button>
+        <button class="btn-nav" id="nextBtn" onclick="nextSlide()">
+          下一頁
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Citation Detail Modal -->
+  <div class="modal-overlay" id="citationModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>📚 知識來源與文獻溯源 (Provenance)</span>
+        </div>
+        <button class="modal-close" onclick="closeModal('citationModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="citationModalBody">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Traceability Matrix Modal -->
+  <div class="modal-overlay" id="traceMatrixModal">
+    <div class="modal-card" style="max-width: 880px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>🗺️ 8 頁簡報與 Wiki Chunk 完整對照矩陣 (Traceability Matrix)</span>
+        </div>
+        <button class="modal-close" onclick="closeModal('traceMatrixModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>頁數</th>
+                <th>主題</th>
+                <th>對應 Wiki Chunk ID</th>
+                <th>原始權威機構</th>
+                <th>原始文獻超連結</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>P1</strong></td>
+                <td>導論與全貌</td>
+                <td><code>WIKI_00_INDEX_CHK_001</code></td>
+                <td>U.S. SEC</td>
+                <td><a href="https://www.sec.gov/investor/pubs/begfinstmtguide.htm" target="_blank" style="color: var(--primary);">SEC Beginners' Guide</a></td>
+              </tr>
+              <tr>
+                <td><strong>P2</strong></td>
+                <td>三大財務報表基礎</td>
+                <td><code>WIKI_01_BALANCE_SHEET_CHK_001</code><br><code>WIKI_02_INCOME_STATEMENT_CHK_001</code></td>
+                <td>U.S. SEC / U.S. SBA</td>
+                <td><a href="https://www.sec.gov/investor/pubs/begfinstmtguide.htm" target="_blank" style="color: var(--primary);">SEC Guide</a> / <a href="https://www.sba.gov/business-guide/manage-your-business/manage-your-finances" target="_blank" style="color: var(--primary);">SBA Guide</a></td>
+              </tr>
+              <tr>
+                <td><strong>P3</strong></td>
+                <td>現金流量表解析</td>
+                <td><code>WIKI_03_CASH_FLOW_STATEMENT_CHK_001</code></td>
+                <td>維基百科 / SEC</td>
+                <td><a href="https://en.wikipedia.org/wiki/Cash_flow_statement" target="_blank" style="color: var(--primary);">Wiki Cash Flow Statement</a></td>
+              </tr>
+              <tr>
+                <td><strong>P4</strong></td>
+                <td>三表勾稽通道</td>
+                <td><code>WIKI_04_STATEMENT_RELATIONS_CHK_001</code></td>
+                <td>Corporate Finance Institute (CFI)</td>
+                <td><a href="https://corporatefinanceinstitute.com/resources/accounting/three-financial-statements/" target="_blank" style="color: var(--primary);">CFI 3 Statements Guide</a></td>
+              </tr>
+              <tr>
+                <td><strong>P5</strong></td>
+                <td>杜邦分析法</td>
+                <td><code>WIKI_06_DUPONT_ANALYSIS_CHK_001</code></td>
+                <td>Corporate Finance Institute (CFI)</td>
+                <td><a href="https://corporatefinanceinstitute.com/resources/accounting/financial-ratios/" target="_blank" style="color: var(--primary);">CFI Financial Ratios</a></td>
+              </tr>
+              <tr>
+                <td><strong>P6</strong></td>
+                <td>流動性與營運效率</td>
+                <td><code>WIKI_07_LIQUIDITY_SOLVENCY_CHK_001</code><br><code>WIKI_08_OPERATING_EFFICIENCY_CHK_001</code></td>
+                <td>Corporate Finance Institute (CFI)</td>
+                <td><a href="https://corporatefinanceinstitute.com/resources/accounting/financial-ratios/" target="_blank" style="color: var(--primary);">CFI Financial Ratios</a></td>
+              </tr>
+              <tr>
+                <td><strong>P7</strong></td>
+                <td>恆星光電實務案例</td>
+                <td><code>WIKI_10_CASE_STUDY_CHK_001</code><br><code>WIKI_10_CASE_STUDY_CHK_002</code></td>
+                <td>虛構教學模型 (方法本於 Wiki SRC_06, CFI)</td>
+                <td><a href="https://en.wikipedia.org/wiki/Earnings_quality" target="_blank" style="color: var(--primary);">Wiki Earnings Quality</a></td>
+              </tr>
+              <tr>
+                <td><strong>P8</strong></td>
+                <td>互動測驗與心法總結</td>
+                <td><code>WIKI_10_CASE_STUDY_CHK_006</code><br><code>WIKI_06_DUPONT_ANALYSIS_CHK_003</code></td>
+                <td>CFI / 維基百科</td>
+                <td><a href="https://corporatefinanceinstitute.com/resources/accounting/financial-ratios/" target="_blank" style="color: var(--primary);">CFI Financial Ratios</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentSlide = 1;
+    const totalSlides = 8;
+
+    // Structured Provenance Data with verified quotes vs concept summaries clearly demarcated
+    const CITATION_DATA = {
+    'P1': {
+
+        claim: '財務報表是企業的全身健康檢查；三大報表分別扮演體能快照、動態影片與血液循環的角色。',
+        chunk_id: 'WIKI_00_INDEX_CHK_001',
+        heading: '知識模組架構 / Beginners Guide to Financial Statements',
+        publisher: 'U.S. Securities and Exchange Commission (SEC)',
+        url: 'https://www.sec.gov/investor/pubs/begfinstmtguide.htm',
+        quote_type: 'Wiki 整理摘要',
+        quote: '此為 Wiki 自製的三表健康檢查教學類比，不是 SEC 的原文。'
+      
+    },
+    'P2': {
+
+        claim: '資產等於負債加股東權益；損益表採多步驟階梯推導，權責發生制下營收不等於實質收現。',
+        chunk_id: 'WIKI_01_BALANCE_SHEET_CHK_001',
+        heading: '會計基本等式與階梯式損益結構',
+        publisher: 'U.S. SEC / U.S. Small Business Administration (SBA)',
+        url: 'https://www.sec.gov/investor/pubs/begfinstmtguide.htm',
+        quote_type: 'Wiki 整理摘要',
+        quote: 'A balance sheet provides detailed information about a company’s assets, liabilities and shareholders’ equity. The income statement shows how much revenue a company earned over a period of time.'
+      
+    },
+    'P2_extra': {
+
+        claim: '資產等於負債加股東權益；損益表採多步驟階梯推導，權責發生制下營收不等於實質收現。',
+        chunk_id: 'WIKI_02_INCOME_STATEMENT_CHK_001',
+        heading: '會計基本等式與階梯式損益結構',
+        publisher: 'U.S. SEC / U.S. Small Business Administration (SBA)',
+        url: 'https://www.sec.gov/investor/pubs/begfinstmtguide.htm',
+        quote_type: 'Wiki 整理摘要',
+        quote: 'A balance sheet provides detailed information about a company’s assets, liabilities and shareholders’ equity. The income statement shows how much revenue a company earned over a period of time.'
+      
+    },
+    'P3': {
+
+        claim: '現金流量表分為營業、投資與籌資活動；間接法由淨利調節營運資金還原出真實 CFO。',
+        chunk_id: 'WIKI_03_CASH_FLOW_STATEMENT_CHK_001',
+        heading: '三大現金活動與間接法推導',
+        publisher: '維基百科 / 國際會計準則條目 (SRC_05)',
+        url: 'https://en.wikipedia.org/wiki/Cash_flow_statement',
+        quote_type: '權威文獻核心觀念摘要 (Institutional Concept Summary)',
+        quote: '現金流量表呈現特定期間現金與約當現金的增減變動。營業活動現金流 (CFO) 採間接法編製時，以淨利為起算點，加回折舊攤銷等非現金費用，並調整應收帳款、存貨及應付帳款等營運資金項目的變動額。'
+      
+    },
+    'P4': {
+
+        claim: '三大報表並非孤立，淨利轉入保留盈餘、作為 CFO 起算點，且期末現金嚴格一致。',
+        chunk_id: 'WIKI_04_STATEMENT_RELATIONS_CHK_001',
+        heading: '三大財務報表的勾稽與連動關係',
+        publisher: 'Corporate Finance Institute (CFI SRC_07)',
+        url: 'https://corporatefinanceinstitute.com/resources/accounting/three-financial-statements/',
+        quote_type: 'Wiki 整理摘要',
+        quote: 'Net income from the bottom of the income statement links to both the balance sheet and cash flow statement. On the balance sheet, it feeds into retained earnings, which is a component of shareholders’ equity.'
+      
+    },
+    'P5': {
+
+        claim: '杜邦分析將 ROE 拆解為純益率（利潤）、資產週轉率（翻桌率）與權益乘數（財務槓桿）。',
+        chunk_id: 'WIKI_06_DUPONT_ANALYSIS_CHK_001',
+        heading: '三因子杜邦分解方程式與商業模式',
+        publisher: 'Corporate Finance Institute (CFI SRC_08) / Wikipedia',
+        url: 'https://corporatefinanceinstitute.com/resources/accounting/financial-ratios/',
+        quote_type: '權威文獻核心觀念摘要 (Institutional Concept Summary)',
+        quote: '杜邦分析法將股東權益報酬率 (ROE) 分解為三個乘法維度：純益率衡量產品營運盈利能力、資產週轉率衡量資產使用效率，權益乘數衡量財務槓桿程度。這幫助分析師識別 ROE 的實質驅動來源。'
+      
+    },
+    'P6': {
+
+        claim: '流動比率、速動比率衡量短期生存；現金轉換循環 (CCC) 以期末餘額口徑反映資金積壓。',
+        chunk_id: 'WIKI_07_LIQUIDITY_SOLVENCY_CHK_001',
+        heading: '流動性防線與現金轉換循環 (期末餘額口徑)',
+        publisher: 'Corporate Finance Institute (CFI SRC_08)',
+        url: 'https://corporatefinanceinstitute.com/resources/accounting/financial-ratios/',
+        quote_type: '權威文獻核心觀念摘要 (Institutional Concept Summary)',
+        quote: '流動比率與速動比率評估短期償債能力，其中速動比率剔除變現較慢的存貨。現金轉換循環 (CCC) 衡量從投入採購至收回現金的淨天數 (DSO + DSI - DPO)，天數過長提示營運資金積壓之潛在流動性風險。'
+      
+    },
+    'P6_extra': {
+
+        claim: '流動比率、速動比率衡量短期生存；現金轉換循環 (CCC) 以期末餘額口徑反映資金積壓。',
+        chunk_id: 'WIKI_08_OPERATING_EFFICIENCY_CHK_001',
+        heading: '流動性防線與現金轉換循環 (期末餘額口徑)',
+        publisher: 'Corporate Finance Institute (CFI SRC_08)',
+        url: 'https://corporatefinanceinstitute.com/resources/accounting/financial-ratios/',
+        quote_type: '權威文獻核心觀念摘要 (Institutional Concept Summary)',
+        quote: '流動比率與速動比率評估短期償債能力，其中速動比率剔除變現較慢的存貨。現金轉換循環 (CCC) 衡量從投入採購至收回現金的淨天數 (DSO + DSI - DPO)，天數過長提示營運資金積壓之潛在流動性風險。'
+      
+    },
+    'P7': {
+
+        claim: '恆星光電營收暴增但 CFO 連兩年為負、DSO 飆到 188.6 天，構成潛在流動性與盈餘品質警訊。',
+        chunk_id: 'WIKI_10_CASE_STUDY_CHK_001',
+        heading: '恆星光電科技三年財務數據審計對照 (虛構教學模型)',
+        publisher: '虛構教學模型 (分析架構源自維基百科盈餘品質 SRC_06 與 CFI SRC_07)',
+        url: 'https://en.wikipedia.org/wiki/Earnings_quality',
+        quote_type: '分析方法理論依據 (Methodology Grounding)',
+        quote: '應計項目總額衡量淨利與營業現金流的落差 (Total Accruals = Net Income - CFO)。當淨利顯著高於現金流且差距擴大時，反映盈餘品質較弱，應深入調查應收帳款與存貨的實質去化狀態。'
+      
+    },
+    'P7_extra': {
+
+        claim: '恆星光電營收暴增但 CFO 連兩年為負、DSO 飆到 188.6 天，構成潛在流動性與盈餘品質警訊。',
+        chunk_id: 'WIKI_10_CASE_STUDY_CHK_002',
+        heading: '恆星光電科技三年財務數據審計對照 (虛構教學模型)',
+        publisher: '虛構教學模型 (分析架構源自維基百科盈餘品質 SRC_06 與 CFI SRC_07)',
+        url: 'https://en.wikipedia.org/wiki/Earnings_quality',
+        quote_type: '分析方法理論依據 (Methodology Grounding)',
+        quote: '應計項目總額衡量淨利與營業現金流的落差 (Total Accruals = Net Income - CFO)。當淨利顯著高於現金流且差距擴大時，反映盈餘品質較弱，應深入調查應收帳款與存貨的實質去化狀態。'
+      
+    },    'P8': {
+      claim: '互動測驗回顧盈餘品質與財務比率概念（教學整理）。',
+      chunk_id: 'WIKI_10_CASE_STUDY_CHK_006',
+      heading: '案例學習與複習',
+      publisher: '自製教學案例；分析方法參考 CFI',
+      url: 'https://corporatefinanceinstitute.com/resources/accounting/financial-ratios/',
+      quote_type: 'Wiki 整理摘要',
+      quote: '本頁題目為根據 Wiki 財報教學內容設計的練習，並非外部機構原文。'
+    },
+    'P8_extra': {
+      claim: '杜邦分析三因子複習。',
+      chunk_id: 'WIKI_06_DUPONT_ANALYSIS_CHK_003',
+      heading: '杜邦分析',
+      publisher: 'CFI',
+      url: 'https://corporatefinanceinstitute.com/resources/accounting/financial-ratios/',
+      quote_type: 'Wiki 整理摘要',
+      quote: 'ROE 可拆解為純益率、總資產週轉率及權益乘數。'
+    },
+
+};
+
+    function updateSlide() {
+      // Hide all slides
+      document.querySelectorAll('.slide').forEach((slide, idx) => {
+        slide.classList.remove('active');
+        if (idx + 1 === currentSlide) {
+          slide.classList.add('active');
+        }
+      });
+
+      // Update Header & Progress
+      document.getElementById('slideCounter').textContent = `投影片 ${currentSlide} / ${totalSlides}`;
+      document.getElementById('progressBar').style.width = `${(currentSlide / totalSlides) * 100}%`;
+
+      // Update Button States
+      document.getElementById('prevBtn').disabled = currentSlide === 1;
+      document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    // Keyboard Navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      } else if (e.key === 'Escape') {
+        closeModal('citationModal');
+        closeModal('traceMatrixModal');
+      }
+    });
+
+    // Citation Modal Handler
+    function showCitation(pageKey) {
+      const entries = [CITATION_DATA[pageKey], CITATION_DATA[pageKey + '_extra']].filter(Boolean);
+      if (!entries.length) return;
+      const body = document.getElementById('citationModalBody');
+      const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      body.innerHTML = entries.map((data, i) => `
+        <div class="provenance-field">
+          <div class="provenance-label">📌 簡報知識主張 ${entries.length > 1 ? i + 1 : ''}</div>
+          <div class="provenance-val" style="font-weight:600;">${escapeHTML(data.claim)}</div>
+        </div>
+        <div class="provenance-field"><div class="provenance-label">🔗 Wiki Chunk ID</div><div class="provenance-val"><code>${escapeHTML(data.chunk_id)}</code></div></div>
+        <div class="provenance-field"><div class="provenance-label">🏛️ 資料來源</div><div class="provenance-val">${escapeHTML(data.publisher)}</div></div>
+        <div class="provenance-field"><div class="provenance-label">🌐 參考來源網址</div><div class="provenance-val"><a href="${escapeHTML(data.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(data.url)}</a></div></div>
+        <div class="provenance-field"><div class="provenance-label">📜 ${escapeHTML(data.quote_type)}</div><div class="provenance-quote">${escapeHTML(data.quote)}</div></div>
+        ${i < entries.length - 1 ? '<hr style="margin:16px 0;border:0;border-top:1px solid #e2e8f0">' : ''}
+      `).join('');
+      document.getElementById('citationModal').classList.add('active');
+    }
+
+    function openTraceMatrixModal() {
+      document.getElementById('traceMatrixModal').classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    // Interactive Quiz Handler
+    const quizAnswered = {};
+    const QUIZ_EXPLANATIONS = {
+      1: {correct: 'B', desc: '營收和淨利成長但 CFO 持續為負，需要進一步檢查收款效率及營運資金；不能單靠此指標直接判定原因。'},
+      2: {correct: 'A', desc: '權益乘數 = 總資產 ÷ 股東權益；升高可能代表財務槓桿增加，需要搭配負債組成判斷。'},
+      3: {correct: 'B', desc: '存貨通常不如現金和應收帳款容易快速變現，因此速動比率會排除存貨。'}
+    };
+
+
+
+    function handleQuiz(qNum, selectedOption, isCorrect) {
+      if (quizAnswered[qNum]) return;
+      quizAnswered[qNum] = true;
+
+      const card = document.getElementById(`qcard-${qNum}`);
+      const options = card.querySelectorAll('.quiz-option');
+      const feedback = document.getElementById(`feedback-${qNum}`);
+
+      options.forEach(btn => {
+        btn.style.pointerEvents = 'none';
+        if (btn.textContent.startsWith(selectedOption)) {
+          if (isCorrect) {
+            btn.classList.add('correct');
+          } else {
+            btn.classList.add('incorrect');
+          }
+        }
+        if (btn.textContent.startsWith(QUIZ_EXPLANATIONS[qNum].correct)) {
+          btn.classList.add('correct');
+        }
+      });
+
+      if (isCorrect) {
+        feedback.className = 'quiz-feedback show-correct';
+        feedback.innerHTML = `✅ <strong>回答正確！</strong> ${QUIZ_EXPLANATIONS[qNum].desc}`;
+      } else {
+        feedback.className = 'quiz-feedback show-incorrect';
+        feedback.innerHTML = `❌ <strong>回答錯誤。</strong> 正確答案為 (${QUIZ_EXPLANATIONS[qNum].correct})。<br>${QUIZ_EXPLANATIONS[qNum].desc}`;
+      }
+    }
+  </script>
+</body>
+</html>
